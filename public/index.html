@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6fe4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Revir">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Revir</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="score" id="score" hidden><i></i><span id="pct">0 %</span><small>/ 30 %</small><span class="bar"><span id="barFill"></span></span></div>
+<div class="fx" id="fx"></div>
+<div class="board" id="board"></div>
+<div class="rbar" id="rbar" hidden><b>Repris</b><span id="rtext"></span><small>Tryck för att hoppa över</small></div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay">
+  <div class="card">
+    <h1 id="title">Revir</h1>
+    <p id="msg">Kör ut från ditt område, rita en slinga och kom hem igen för att ta marken. Om någon kör på ditt spår åker du ut. Först till 30 % vinner.</p>
+    <p class="hint">Superkrafter: 🛡️ odödlig, ⚡ dubbel fart, ❄️ frys de andra, 💥 markbomb.</p>
+    <div class="mapwrap" id="mapwrap" hidden><canvas id="mini" width="140" height="140"></canvas><small>Krysset visar var det hände</small></div>
+    <div class="stats" id="stats" hidden>
+      <div><b id="sPct">0</b><small>max mark</small></div>
+      <div><b id="sKills">0</b><small>utslagna</small></div>
+      <div><b id="sBest">0</b><small>rekord</small></div>
+    </div>
+    <div class="pick">Välj bana</div>
+    <div class="themes" id="themes"></div>
+    <div class="btns">
+      <button id="play">Spela</button>
+      <button id="again" class="sec" hidden>Se repris</button>
+    </div>
+    <p class="hint">Dra med fingret åt det håll du vill köra. På dator: styr med musen eller piltangenterna.</p>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

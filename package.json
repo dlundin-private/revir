@@ -1,0 +1,15 @@
+{
+  "name": "revir",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Revir – ett territoriespel för barn som går att spela offline.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "serve": "npx --yes http-server public -p 8080 -c-1",
+    "check": "node --check public/game.js && node --check public/sw.js",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
