@@ -15,16 +15,20 @@ Hobbyprojekt. Grundprinciper som alltid gäller:
   efterlikna inte andra spels utseende, logotyper eller figurer.
 
 ## Köra och testa
-- `npm run serve` – statisk server på http://localhost:8080 (snabbast).
-- `npm run dev` – Cloudflare-miljön lokalt.
+- `npm run serve` – statisk server på http://localhost:8080.
 - `npm run check` – syntaxkontroll.
-- `npm run deploy` – publicera till Cloudflare Workers.
-- Inget byggsteg. Filerna i `public/` serveras som de är.
+- Inget byggsteg. Spelets filer ligger i roten och serveras som de är.
 
-Efter ändringar i `public/`: höj `VERSION` i `public/sw.js`, annars får installerade
-klienter gamla filer.
+Efter ändringar i spelets filer: höj `VERSION` i `sw.js`, annars får installerade
+klienter gamla filer. Nya filer läggs till i `FILES`. Service workern rör bara
+cachar som börjar på `revir-`, eftersom adressen kan delas med de andra spelen.
 
-## Arkitektur (public/game.js)
+## Driftsättning
+GitHub Pages publicerar grenen `main` från roten (`.nojekyll` gör att filerna
+serveras som de är). Push till `main` = live efter någon minut på
+https://dlundin-private.github.io/revir/. Testa större ändringar på en egen gren först.
+
+## Arkitektur (game.js)
 En IIFE med delat tillstånd. Sektioner i filen i ordning:
 
 1. **World** – rutnät 240×240 (`W`, `H`). `owner[i]` = ägare (spelar-id+1),
@@ -57,7 +61,7 @@ En IIFE med delat tillstånd. Sektioner i filen i ordning:
     Vinstkontroll (`GOAL = 0.30`) sker i loopen och anropar `endRound()`.
 
 ## Konventioner
-- Ren JavaScript, inga ramverk, inga externa beroenden i `public/`.
+- Ren JavaScript, inga ramverk, inga externa beroenden i spelet.
 - Färger på sidan via CSS-variabler på `:root` med mörkt läge. Canvas-färger
   kommer från temat.
 - Testa på smal mobilskärm (~380 px) och desktop. Styrning: dra med fingret

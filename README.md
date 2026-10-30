@@ -10,9 +10,6 @@ hemskärmen som en app.
 ## Kom igång
 
 ```bash
-npm install
-npm run dev        # Cloudflare-miljö lokalt (wrangler dev)
-# eller
 npm run serve      # enkel statisk server på http://localhost:8080
 ```
 
@@ -21,13 +18,8 @@ http/https, inte om du dubbelklickar på `index.html`.
 
 ## Publicera
 
-```bash
-npx wrangler login   # första gången
-npm run deploy
-```
-
-Spelet hamnar på `https://revir.<ditt-konto>.workers.dev`. Egen domän kopplas i
-Cloudflare-panelen under Workers → revir → Settings → Domains & Routes.
+GitHub Pages publicerar grenen `main` från roten. Push till `main` och spelet är
+live efter någon minut på https://dlundin-private.github.io/revir/.
 
 ## Installera på mobilen
 
@@ -40,21 +32,19 @@ Efter första besöket fungerar spelet i flygplansläge.
 
 ## Uppdatera spelet
 
-Ändra filerna i `public/` och höj `VERSION` i `public/sw.js` (t.ex. `revir-v2`).
+Ändra spelets filer och höj `VERSION` i `sw.js` (t.ex. `revir-v3`).
 Annars fortsätter installerade kopior att visa den gamla versionen.
 
 ## Struktur
 
 ```
-public/
-  index.html             sidan och gränssnittet
-  style.css              utseende, ljust och mörkt läge
-  game.js                hela spelet (värld, botar, superkrafter, repris, rendering)
-  sw.js                  offline-cache
-  manifest.webmanifest   app-inställningar för hemskärmen
-  _headers               cache-regler på Cloudflare
-  icons/                 appikoner
-docs/BACKLOG.md          idéer framåt
-CLAUDE.md                instruktioner för Claude Code
-wrangler.toml            Cloudflare Workers-konfiguration
+index.html             sidan och gränssnittet
+style.css              utseende, ljust och mörkt läge
+game.js                hela spelet (värld, botar, superkrafter, repris, rendering)
+sw.js                  offline-cache
+manifest.webmanifest   app-inställningar för hemskärmen
+icons/                 appikoner
+.nojekyll              GitHub Pages serverar filerna som de är
+docs/BACKLOG.md        idéer framåt
+CLAUDE.md              instruktioner för Claude Code
 ```
