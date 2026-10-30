@@ -19,7 +19,7 @@ http/https, inte om du dubbelklickar på `index.html`.
 ## Publicera
 
 GitHub Pages publicerar grenen `main` från roten. Push till `main` och spelet är
-live efter någon minut på https://dlundin-private.github.io/revir/.
+live efter någon minut på https://revir.chandler.se.
 
 ## Installera på mobilen
 
@@ -45,6 +45,7 @@ sw.js                  offline-cache
 manifest.webmanifest   app-inställningar för hemskärmen
 icons/                 appikoner
 .nojekyll              GitHub Pages serverar filerna som de är
+CNAME                  egen domän, revir.chandler.se
 docs/BACKLOG.md        idéer framåt
 CLAUDE.md              instruktioner för Claude Code
 ```

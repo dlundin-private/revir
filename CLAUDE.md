@@ -26,7 +26,7 @@ cachar som börjar på `revir-`, eftersom adressen kan delas med de andra spelen
 ## Driftsättning
 GitHub Pages publicerar grenen `main` från roten (`.nojekyll` gör att filerna
 serveras som de är). Push till `main` = live efter någon minut på
-https://dlundin-private.github.io/revir/. Testa större ändringar på en egen gren först.
+https://revir.chandler.se. Testa större ändringar på en egen gren först.
 
 ## Arkitektur (game.js)
 En IIFE med delat tillstånd. Sektioner i filen i ordning:
