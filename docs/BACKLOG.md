@@ -7,7 +7,8 @@ Idéer, inte löften. Ta en i taget.
 - Svårighetsgrad för botarna (lätt / normal / svår) – styr fart, aggressivitet och hur långt de vågar sig ut.
 - Valbart mål: 20 %, 30 % eller 50 %.
 - Rundtimer som alternativ: mest mark efter 3 minuter vinner.
-- Spelarnamn och egen färg/emoji för "Du".
+- Spelarnamn för "Du". (Utseenden finns, se Skins i CLAUDE.md.)
+- Fler skins, och fler sätt att tjäna stjärnor (t.ex. dagens utmaning).
 
 ## Känsla
 - Ljud och musik (Web Audio, avstängningsbart, sparas i localStorage).

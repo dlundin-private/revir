@@ -59,6 +59,19 @@ En IIFE med delat tillstånd. Sektioner i filen i ordning:
    `id*7` och `Float32Array(56)` överallt.
 10. **UI / Render / Loop** – `mode` är `'live'`, `'replay'` eller `'ended'`.
     Vinstkontroll (`GOAL = 0.30`) sker i loopen och anropar `endRound()`.
+11. **Skins** (mellan UI och Render) – `SKINS` med id, namn och pris i stjärnor.
+    `drawSkin(g, id, …)` ritar din figur i ett lokalt läge där +x är färdriktningen,
+    både i spelet (`drawHead`) och i menyns förhandsbilder (`renderSkins()`).
+    Stjärnor per runda: `roundStars()` = 1 + hela procent mark + 3 per utslagen
+    + 20 för vinst, delas ut en gång per runda i `showCard()`. Rent kosmetiskt,
+    påverkar aldrig spelet. Ny skin = ny post i `SKINS` + grenar i `drawSkin()`.
+
+## Sparning (localStorage)
+- `revir-theme` – vald bana.
+- `revir-best` – rekord i procent.
+- `revir-skins` – `{ stars, own, sel }`: stjärnor, upplåsta skins och vald skin.
+  Ändra inte formatet utan migrering. Nya fält får standardvärden via
+  `Object.assign(freshWallet(), …)`.
 
 ## Konventioner
 - Ren JavaScript, inga ramverk, inga externa beroenden i spelet.

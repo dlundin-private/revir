@@ -1,6 +1,6 @@
 // Offline cache for Revir. Bump VERSION whenever a site file changes,
 // otherwise installed copies keep serving the old files.
-const VERSION = 'revir-v2';
+const VERSION = 'revir-v3';
 const FILES = [
   './', './index.html', './style.css', './game.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'

@@ -157,6 +157,7 @@ function applyTheme(id){
   document.body.style.background = wallCol;
   document.documentElement.style.setProperty('--me', me.color);
   builtFrom = null;
+  renderSkins();
   document.querySelectorAll('#themes button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
   try { localStorage.setItem('revir-theme', id); } catch(e){}
 }
@@ -486,8 +487,14 @@ function liveFrame(){
   for (const p of players){ const o = p.id*7; if (p.alive){ const [x, y] = headPos(p); h[o] = x; h[o+1] = y; h[o+2] = 1; } }
   return { terr:owner, h, tr:players.map(p => p.alive && p.pts.length ? [p.pts, p.pts.length] : null) };
 }
+let earned = -1;
 function showCard(win){
   if (me.maxPct > best){ best = me.maxPct; try { localStorage.setItem('revir-best', String(best)); } catch(e){} }
+  // showCard körs igen efter "Se repris", stjärnorna delas bara ut en gång per runda.
+  if (earned < 0){ earned = roundStars(win); wallet.stars += earned; saveWallet(); }
+  $('earn').innerHTML = `Du fick <b>+${earned} ⭐</b>`;
+  $('earn').hidden = false;
+  renderSkins();
   if (win){
     $('title').textContent = win === me ? 'Du vann! 🏆' : 'Rundan är slut';
     $('msg').innerHTML = win === me ? 'Du tog 30 % av banan först.' : `${chip(win)} tog 30 % av banan först.`;
@@ -579,7 +586,7 @@ function resetWorld(){
   for (let k = 0; k < 4; k++) spawnItem();
 }
 function start(){
-  resetWorld(); rings.length = 0; spawn(me); me.kills = 0; me.maxPct = 0; death = null; recCount = 0; keys.clear();
+  resetWorld(); rings.length = 0; spawn(me); me.kills = 0; me.maxPct = 0; death = null; earned = -1; recCount = 0; keys.clear();
   mode = 'live'; overlay.hidden = true; rbar.hidden = true; scoreEl.hidden = false; boardEl.hidden = false;
 }
 $('play').addEventListener('click', start);
@@ -591,24 +598,129 @@ function updateHud(){
   boardEl.innerHTML = list.map(p => `<div class="${p===me?'me':''}" style="--c:${p.color}"><span>${label(p)}</span><span>${fmt(counts[p.id]/N*100)}</span></div>`).join('');
 }
 
+/* ---------- Skins ---------- */
+// Utseenden för din figur. Rent kosmetiska, låses upp med stjärnor som tjänas i spelet.
+const SKINS = [
+  { id:'ogon', label:'Klassisk', cost:0 },    { id:'glad', label:'Glad', cost:15 },
+  { id:'brillor', label:'Solbrillor', cost:30 }, { id:'katt', label:'Katt', cost:45 },
+  { id:'krona', label:'Krona', cost:70 },     { id:'robot', label:'Robot', cost:90 },
+  { id:'stjarna', label:'Stjärna', cost:120 }, { id:'drake', label:'Drake', cost:160 },
+  { id:'regnbage', label:'Regnbåge', cost:220 }
+];
+const freshWallet = () => ({ stars:0, own:['ogon'], sel:'ogon' });
+let wallet = freshWallet();
+try { wallet = Object.assign(freshWallet(), JSON.parse(localStorage.getItem('revir-skins')) || {}); } catch(e){}
+if (!wallet.own.includes(wallet.sel)) wallet.sel = 'ogon';
+function saveWallet(){ try { localStorage.setItem('revir-skins', JSON.stringify(wallet)); } catch(e){} }
+// Stjärnor för en runda: 1 för att ha spelat, 1 per procent mark, 3 per utslagen, 20 för vinst.
+const roundStars = win => 1 + Math.floor(me.maxPct) + me.kills*3 + (win === me ? 20 : 0);
+
+const RAINBOW = ['#ef4444','#f59e0b','#facc15','#22c55e','#3b82f6','#a855f7'];
+function dot(g, x, y, r){ g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+function poly(g, pts){ g.beginPath(); g.moveTo(pts[0], pts[1]); for (let j = 2; j < pts.length; j += 2) g.lineTo(pts[j], pts[j+1]); g.closePath(); }
+// Ritas i ett lokalt läge där +x är färdriktningen och -x bakhuvudet.
+function drawSkin(g, id, X, Y, r, ang, col, dark, ow){
+  g.save(); g.translate(X, Y); g.rotate(ang);
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  if (id === 'krona'){
+    poly(g, [-r*.7,-r*.65, -r*1.45,-r*.75, -r*1.05,-r*.33, -r*1.6,0, -r*1.05,r*.33, -r*1.45,r*.75, -r*.7,r*.65]);
+    g.fillStyle = '#ffc83d'; g.fill(); g.strokeStyle = '#b7791f'; g.lineWidth = Math.max(1, r*.12); g.stroke();
+    g.fillStyle = '#ef4444'; dot(g, -r*1.6, 0, r*.14); g.fillStyle = '#3b82f6'; dot(g, -r*1.45, -r*.75, r*.12); dot(g, -r*1.45, r*.75, r*.12);
+  } else if (id === 'katt'){
+    for (const k of [-1, 1]){
+      poly(g, [r*.2, r*.8*k, -r*.6, r*1.55*k, -r*.8, r*.3*k]); g.fillStyle = col; g.fill();
+      g.strokeStyle = dark; g.lineWidth = ow*1.6; g.stroke();
+      poly(g, [-r*.05, r*.9*k, -r*.52, r*1.3*k, -r*.62, r*.6*k]); g.fillStyle = '#ffb3c7'; g.fill();
+    }
+  } else if (id === 'robot'){
+    g.strokeStyle = dark; g.lineWidth = Math.max(1.5, r*.16); g.beginPath(); g.moveTo(-r*.8, 0); g.lineTo(-r*1.55, 0); g.stroke();
+    g.fillStyle = '#ff4d6d'; dot(g, -r*1.6, 0, r*.24);
+  } else if (id === 'drake'){
+    for (const a of [Math.PI, Math.PI - .75, Math.PI + .75]){
+      const c = Math.cos(a), s = Math.sin(a), L = a === Math.PI ? 1.85 : 1.6;
+      poly(g, [c*r*L, s*r*L, c*r*.8 - s*r*.42, s*r*.8 + c*r*.42, c*r*.8 + s*r*.42, s*r*.8 - c*r*.42]);
+      g.fillStyle = '#ffd23f'; g.fill(); g.strokeStyle = dark; g.lineWidth = Math.max(1, r*.12); g.stroke();
+    }
+  }
+  if (id === 'stjarna'){
+    const pts = [];
+    for (let k = 0; k < 10; k++){ const a = k*TAU/10, R = k % 2 ? r*.72 : r*1.3; pts.push(Math.cos(a)*R, Math.sin(a)*R); }
+    poly(g, pts); g.strokeStyle = dark; g.lineWidth = ow*2; g.stroke(); g.fillStyle = col; g.fill();
+  } else {
+    if (id === 'regnbage'){
+      const spin = now/700;
+      for (let k = 0; k < 6; k++){
+        g.fillStyle = RAINBOW[k]; g.beginPath(); g.moveTo(0, 0);
+        g.arc(0, 0, r + ow*1.6, spin + k*TAU/6, spin + (k+1)*TAU/6 + .02); g.closePath(); g.fill();
+      }
+    } else { g.fillStyle = dark; dot(g, 0, 0, r + ow); }
+    g.fillStyle = col; dot(g, 0, 0, r);
+  }
+  if (id === 'brillor'){
+    g.strokeStyle = '#1c2738'; g.lineWidth = Math.max(1.5, r*.18); g.beginPath(); g.moveTo(r*.35, -r*.5); g.lineTo(r*.35, r*.5); g.stroke();
+    for (const k of [-1, 1]){
+      g.fillStyle = '#fff'; dot(g, r*.35, r*.48*k, r*.44);
+      g.fillStyle = '#1c2738'; dot(g, r*.35, r*.48*k, r*.36);
+      g.fillStyle = 'rgba(255,255,255,.75)'; dot(g, r*.48, r*.48*k - r*.12, r*.1);
+    }
+  } else if (id === 'robot'){
+    g.fillStyle = '#1c2738'; g.beginPath();
+    g.roundRect ? g.roundRect(r*.02, -r*.75, r*.68, r*1.5, r*.25) : g.rect(r*.02, -r*.75, r*.68, r*1.5); g.fill();
+    g.fillStyle = '#3fe0ff'; dot(g, r*.36, -r*.38, r*.16); dot(g, r*.36, r*.38, r*.16);
+  } else {
+    if (id === 'glad'){
+      g.fillStyle = '#1c2738'; g.beginPath(); g.moveTo(r*.25, 0); g.arc(r*.25, 0, r*.62, -.8, .8); g.closePath(); g.fill();
+      g.fillStyle = '#ff7aa2'; g.beginPath(); g.moveTo(r*.55, 0); g.arc(r*.55, 0, r*.28, -1.2, 1.2); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,120,150,.6)'; dot(g, -r*.1, -r*.8, r*.17); dot(g, -r*.1, r*.8, r*.17);
+    }
+    for (const k of [-1, 1]){
+      g.fillStyle = '#fff'; dot(g, r*.3, r*.42*k, r*.3);
+      g.fillStyle = '#1c2738'; dot(g, r*.42, r*.42*k, r*.16);
+    }
+    if (id === 'katt'){
+      poly(g, [r*.82, 0, r*.66, -r*.14, r*.66, r*.14]); g.fillStyle = '#ff7aa2'; g.fill();
+    } else if (id === 'drake'){
+      g.fillStyle = '#1c2738'; dot(g, r*.8, -r*.17, r*.07); dot(g, r*.8, r*.17, r*.07);
+    }
+  }
+  g.restore();
+}
+
+const skinsEl = document.getElementById('skins');
+skinsEl.innerHTML = SKINS.map(k => `<button data-id="${k.id}" aria-pressed="false"><canvas></canvas><span>${k.label}</span><small></small></button>`).join('');
+function renderSkins(){
+  const r = Math.min(2, window.devicePixelRatio || 1);
+  document.getElementById('stars').textContent = `⭐ ${wallet.stars}`;
+  for (const b of skinsEl.children){
+    const k = SKINS.find(s => s.id === b.dataset.id), own = wallet.own.includes(k.id), cv = b.querySelector('canvas');
+    cv.width = 64*r; cv.height = 52*r;
+    const g = cv.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0);
+    drawSkin(g, k.id, 36, 26, 15, 0, me.color, me.dark, 2.5);
+    b.setAttribute('aria-pressed', String(wallet.sel === k.id));
+    b.classList.toggle('locked', !own); b.classList.toggle('can', !own && wallet.stars >= k.cost);
+    b.querySelector('small').textContent = own ? '' : `🔒 ${k.cost} ⭐`;
+  }
+}
+skinsEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = SKINS.find(s => s.id === b.dataset.id);
+  if (!wallet.own.includes(k.id)){
+    if (wallet.stars < k.cost){ toast(`Du behöver ${k.cost - wallet.stars} ⭐ till`); return; }
+    wallet.stars -= k.cost; wallet.own.push(k.id); toast(`Du låste upp ${k.label}!`);
+  }
+  wallet.sel = k.id; saveWallet(); renderSkins();
+});
+
 /* ---------- Render ---------- */
 const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
 function circle(x, y, r){ ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
 function drawHead(p, ang, X, Y, s){
-  const r = PR*s*1.1;
-  ctx.fillStyle = p.dark; circle(X, Y, r + Math.max(1.5, s*.35));
+  const r = PR*s*1.1, ow = Math.max(1.5, s*.35);
+  if (!p.isBot){ drawSkin(ctx, wallet.sel, X, Y, r, ang, p.color, p.dark, ow); return; }
+  ctx.fillStyle = p.dark; circle(X, Y, r + ow);
   ctx.fillStyle = p.color; circle(X, Y, r);
-  if (p.isBot){
-    ctx.font = `${r*1.25}px ${EMOJI_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(p.emo, X, Y + r*.06);
-  } else {
-    const c = Math.cos(ang), sn = Math.sin(ang);
-    for (const k of [-1, 1]){
-      const ex = X + c*r*.3 - sn*r*.42*k, ey = Y + sn*r*.3 + c*r*.42*k;
-      ctx.fillStyle = '#fff'; circle(ex, ey, r*.3);
-      ctx.fillStyle = '#1c2738'; circle(ex + c*r*.12, ey + sn*r*.12, r*.16);
-    }
-  }
+  ctx.font = `${r*1.25}px ${EMOJI_FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(p.emo, X, Y + r*.06);
 }
 
 // view: { heads:[{p,x,y,ang}], trails:[{p,pts,len,hx,hy}], cx, cy, s, ring, mark }

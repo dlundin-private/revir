@@ -20,7 +20,6 @@
 <div class="fx" id="fx"></div>
 <div class="board" id="board"></div>
 <div class="rbar" id="rbar" hidden><b>Repris</b><span id="rtext"></span><small>Tryck för att hoppa över</small></div>
-<div class="toast" id="toast"></div>
 <div class="overlay" id="overlay">
   <div class="card">
     <h1 id="title">Revir</h1>
@@ -32,8 +31,11 @@
       <div><b id="sKills">0</b><small>utslagna</small></div>
       <div><b id="sBest">0</b><small>rekord</small></div>
     </div>
+    <p class="earn" id="earn" hidden></p>
     <div class="pick">Välj bana</div>
     <div class="themes" id="themes"></div>
+    <div class="pick">Din figur <span class="stars" id="stars"></span></div>
+    <div class="skins" id="skins"></div>
     <div class="btns">
       <button id="play">Spela</button>
       <button id="again" class="sec" hidden>Se repris</button>
@@ -41,6 +43,7 @@
     <p class="hint">Dra med fingret åt det håll du vill köra. På dator: styr med musen eller piltangenterna.</p>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 <script src="game.js"></script>
 </body>
 </html>
